@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jet One — Carousel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ee;
+    --gold: #c9a84c;
+    --gray: #888;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  /* ─── CAROUSEL SECTION ─── */
+  .carousel-section {
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .carousel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 36px;
+  }
+
+  .carousel-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .carousel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 4vw, 46px);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--white);
+  }
+
+  .carousel-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .carousel-counter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    color: var(--gray);
+    letter-spacing: 2px;
+  }
+
+  /* ─── TRACK ─── */
+  .carousel-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+
+  .carousel-track {
+    display: flex;
+    transition: transform 0.65s cubic-bezier(0.77, 0, 0.175, 1);
+    will-change: transform;
+  }
+
+  .carousel-slide {
+    min-width: 100%;
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #111;
+    overflow: hidden;
+  }
+
+  /* For portrait images, uncomment below and comment aspect-ratio above */
+  /* .carousel-slide { min-width: 100%; position: relative; height: 70vh; background: #111; overflow: hidden; } */
+
+  .carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.8s ease;
+  }
+
+  .carousel-slide:hover img {
+    transform: scale(1.03);
+  }
+
+  /* Caption overlay */
+  .slide-caption {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 28px 32px;
+    background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .carousel-slide:hover .slide-caption {
+    opacity: 1;
+  }
+
+  .slide-caption span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--white);
+    letter-spacing: 1px;
+  }
+
+  /* ─── CONTROLS ─── */
+  .carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 28px;
+    height: 2px;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: background 0.3s, width 0.3s;
+  }
+
+  .dot.active {
+    background: var(--gold);
+    width: 48px;
+  }
+
+  .carousel-arrows {
+    display: flex;
+    gap: 12px;
+  }
+
+  .arrow-btn {
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: border-color 0.3s, background 0.3s;
+    border-radius: 1px;
+  }
+
+  .arrow-btn:hover {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+    color: var(--gold);
+  }
+
+  /* ─── THUMBNAIL STRIP (optional, shown below) ─── */
+  .thumb-strip {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .thumb-strip::-webkit-scrollbar { display: none; }
+
+  .thumb {
+    min-width: 80px;
+    height: 54px;
+    object-fit: cover;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.3s;
+    border: 1px solid transparent;
+    flex-shrink: 0;
+  }
+
+  .thumb.active {
+    opacity: 1;
+    border-color: var(--gold);
+  }
+
+  /* ─── SWIPE HINT ─── */
+  .swipe-hint {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<section class="carousel-section">
+
+  <div class="carousel-header">
+    <div>
+      <p class="carousel-label">Galerie</p>
+      <h2 class="carousel-title">La collection<br><em>en images</em></h2>
+    </div>
+    <span class="carousel-counter" id="counter">01 / 05</span>
+  </div>
+
+  <div class="carousel-wrap">
+    <div class="carousel-track" id="track">
+
+      <!-- ════════════════════════════════════════
+           ADD / REMOVE SLIDES HERE
+           Just change the src="..." to your filename
+           e.g. src="1.jpg" or src="photos/1.jpg"
+           Change the caption inside <span> too
+      ════════════════════════════════════════ -->
+
+      <div class="carousel-slide">
+        <img src="1.jpg" alt="Photo 1" loading="lazy">
+        <div class="slide-caption"><span>Collection Printemps</span></div>
+      </div>
+
+      <div class="carousel-slide">
+        <img src="2.jpg" alt="Photo 2" loading="lazy">
+        <div class="slide-caption"><span>Robes & Jupes</span></div>
+      </div>
+
+      <div class="carousel-slide">
+        <img src="3.jpg" alt="Photo 3" loading="lazy">
+        <div class="slide-caption"><span>Style Algérien</span></div>
+      </div>
+
+      <div class="carousel-slide">
+        <img src="4.jpg" alt="Photo 4" loading="lazy">
+        <div class="slide-caption"><span>Chemises & Tops</span></div>
+      </div>
+
+      <div class="carousel-slide">
+        <img src="5.jpg" alt="Photo 5" loading="lazy">
+        <div class="slide-caption"><span>Nouveautés 2025</span></div>
+      </div>
+
+      <!-- To add more photos, copy one of the blocks above and paste here -->
+
+    </div>
+  </div>
+
+  <!-- Thumbnail strip -->
+  <div class="thumb-strip" id="thumbStrip"></div>
+
+  <div class="carousel-controls">
+    <div class="carousel-dots" id="dots"></div>
+    <div class="carousel-arrows">
+      <button class="arrow-btn" id="prevBtn" aria-label="Précédent">&#8592;</button>
+      <button class="arrow-btn" id="nextBtn" aria-label="Suivant">&#8594;</button>
+    </div>
+  </div>
+
+  <p class="swipe-hint">Glissez pour naviguer</p>
+
+</section>
+
+<script>
+  const track = document.getElementById('track');
+  const slides = Array.from(track.children);
+  const dotsContainer = document.getElementById('dots');
+  const thumbStrip = document.getElementById('thumbStrip');
+  const counter = document.getElementById('counter');
+  const total = slides.length;
+  let current = 0;
+  let autoTimer;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsContainer.appendChild(d);
+  });
+
+  // Build thumbnails from same images
+  slides.forEach((slide, i) => {
+    const src = slide.querySelector('img').src;
+    const t = document.createElement('img');
+    t.src = src;
+    t.className = 'thumb' + (i === 0 ? ' active' : '');
+    t.onclick = () => goTo(i);
+    thumbStrip.appendChild(t);
+  });
+
+  function goTo(index) {
+    current = (index + total) % total;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    // Update dots
+    dotsContainer.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    // Update thumbs
+    thumbStrip.querySelectorAll('.thumb').forEach((t, i) => t.classList.toggle('active', i === current));
+    // Update counter
+    counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+    resetAuto();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  document.getElementById('nextBtn').onclick = next;
+  document.getElementById('prevBtn').onclick = prev;
+
+  // Keyboard navigation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') prev();
+  });
+
+  // Auto-advance every 5 seconds
+  function startAuto() { autoTimer = setInterval(next, 5000); }
+  function resetAuto() { clearInterval(autoTimer); startAuto(); }
+  startAuto();
+
+  // Touch / swipe support
+  let touchStartX = 0;
+  track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  track.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+  });
+</script>
+
+</body>
+</html>
