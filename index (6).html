@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jet One — Mode Féminine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --black:#0a0a0a; --white:#f5f5f0; --g1:#1a1a1a; --g2:#2e2e2e; --g3:#555; --g4:#999; --g5:#ccc; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:300;overflow-x:hidden;cursor:none;}
+
+  /* CURSOR */
+  #cur{width:8px;height:8px;background:var(--white);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;mix-blend-mode:difference;transform:translate(-50%,-50%);}
+  #cur-ring{width:38px;height:38px;border:1px solid rgba(245,245,240,.45);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s;}
+  body:has(button:hover) #cur-ring,body:has(a:hover) #cur-ring{width:58px;height:58px;border-color:var(--white);}
+
+  /* PAGES */
+  .page{display:none;min-height:100vh;}
+  .page.active{display:block;animation:pageIn .65s cubic-bezier(.25,.46,.45,.94) both;}
+  @keyframes pageIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:22px 60px;background:linear-gradient(to bottom,rgba(10,10,10,.97) 0%,transparent 100%);backdrop-filter:blur(6px);}
+  .logo{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:300;letter-spacing:.35em;text-transform:uppercase;color:var(--white);cursor:pointer;border:none;background:none;}
+  .nav-links{display:flex;gap:36px;align-items:center;flex-wrap:wrap;}
+  .nb{font-size:.67rem;letter-spacing:.18em;text-transform:uppercase;color:var(--g5);background:none;border:none;font-family:'Montserrat',sans-serif;font-weight:300;cursor:pointer;position:relative;transition:color .3s;padding:0;}
+  .nb::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--white);transition:width .35s ease;}
+  .nb:hover,.nb.on{color:var(--white);}
+  .nb:hover::after,.nb.on::after{width:100%;}
+  .nav-cart{padding:10px 22px;background:var(--white);color:var(--black);border:none;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;font-family:'Montserrat',sans-serif;cursor:pointer;transition:background .3s;display:flex;align-items:center;gap:8px;}
+  .nav-cart:hover{background:var(--g5);}
+  .badge{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--black);color:var(--white);border-radius:50%;font-size:.55rem;font-weight:500;}
+
+  /* HERO */
+  .hero{height:100vh;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 85% 65% at 58% 42%,#222 0%,#0a0a0a 75%);}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(245,245,240,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(245,245,240,.035) 1px,transparent 1px);background-size:72px 72px;}
+  .hero-c{position:relative;z-index:2;text-align:center;padding:0 20px;}
+  .h-eye{font-size:.6rem;letter-spacing:.55em;text-transform:uppercase;color:var(--g4);margin-bottom:26px;animation:up 1s ease .2s both;}
+  .h-title{font-family:'Cormorant Garamond',serif;font-size:clamp(5.5rem,13vw,11rem);font-weight:300;line-height:.88;animation:up 1s ease .4s both;}
+  .h-title em{font-style:italic;color:var(--g4);}
+  .h-tag{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--g4);margin-top:34px;animation:up 1s ease .6s both;}
+  .h-div{width:38px;height:1px;background:var(--g3);margin:30px auto;animation:up 1s ease .7s both;}
+  .h-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:up 1s ease .8s both;}
+  .h-btn{padding:13px 38px;border:1px solid var(--white);color:var(--white);background:none;font-size:.67rem;letter-spacing:.25em;text-transform:uppercase;font-family:'Montserrat',sans-serif;cursor:pointer;transition:all .4s;}
+  .h-btn:hover,.h-btn.fill{background:var(--white);color:var(--black);}
+  .h-btn.fill:hover{background:var(--g5);}
+  @keyframes up{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+  .h-scroll{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;animation:fi 2s ease 1.3s both;}
+  .h-scroll span{font-size:.57rem;letter-spacing:.35em;color:var(--g4);text-transform:uppercase;}
+  .h-line{width:1px;height:52px;background:linear-gradient(to bottom,var(--g4),transparent);animation:pulse 2.2s ease infinite;}
+  @keyframes pulse{0%,100%{opacity:.3;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.15)}}
+  @keyframes fi{from{opacity:0}to{opacity:1}}
+
+  /* MARQUEE */
+  .mq-wrap{overflow:hidden;background:var(--white);padding:15px 0;}
+  .mq-track{display:flex;white-space:nowrap;animation:mq 22s linear infinite;}
+  .mq-item{flex-shrink:0;padding:0 34px;font-size:.67rem;letter-spacing:.28em;text-transform:uppercase;color:var(--black);font-weight:400;}
+  .dot{color:var(--g3);margin:0 6px;}
+  @keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* CATEGORIES HOME */
+  .cats-sec{padding:110px 60px;background:linear-gradient(to bottom,var(--black),var(--g1));}
+  .s-label{font-size:.59rem;letter-spacing:.5em;text-transform:uppercase;color:var(--g4);margin-bottom:14px;}
+  .s-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.3rem,4.5vw,3.7rem);font-weight:300;margin-bottom:60px;}
+  .s-title em{font-style:italic;color:var(--g4);}
+  .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+  .cat-card{position:relative;aspect-ratio:2/3;overflow:hidden;cursor:pointer;background:var(--g2);display:flex;align-items:flex-end;}
+  .cat-emo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:5rem;opacity:.1;transition:transform .8s cubic-bezier(.25,.46,.45,.94),opacity .5s;}
+  .cat-card:hover .cat-emo{transform:scale(1.08);opacity:.18;}
+  .cat-grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.93) 0%,rgba(10,10,10,.15) 55%,transparent 100%);}
+  .cat-line{position:absolute;top:0;left:0;right:0;height:2px;background:var(--white);transform:scaleX(0);transition:transform .5s ease;transform-origin:left;}
+  .cat-card:hover .cat-line{transform:scaleX(1);}
+  .cat-body{position:relative;z-index:2;padding:26px;width:100%;}
+  .cat-sub{font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--g4);margin-bottom:7px;display:block;}
+  .cat-name{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:300;margin-bottom:18px;display:block;}
+  .cat-go{display:inline-block;padding:8px 20px;border:1px solid rgba(245,245,240,.4);font-size:.59rem;letter-spacing:.2em;text-transform:uppercase;font-family:'Montserrat',sans-serif;color:var(--white);background:none;cursor:pointer;transition:all .35s;}
+  .cat-card:hover .cat-go{background:var(--white);color:var(--black);border-color:var(--white);}
+
+  /* FEATURED */
+  .feat-sec{padding:100px 60px;background:var(--g1);}
+  .sec-hd{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:56px;}
+  .see-all{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--g4);background:none;border:none;border-bottom:1px solid var(--g3);padding-bottom:3px;cursor:pointer;font-family:'Montserrat',sans-serif;transition:color .3s,border-color .3s;}
+  .see-all:hover{color:var(--white);border-color:var(--white);}
+  .p-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:2px;}
+  .pc{position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;background:var(--g2);}
+  .pc-in{width:100%;height:100%;display:flex;align-items:center;justify-content:center;transition:transform .8s ease;}
+  .pc:hover .pc-in{transform:scale(1.06);}
+  .pc-ico{font-size:4.5rem;opacity:.12;}
+  .pc-tag{position:absolute;top:16px;left:16px;background:var(--white);color:var(--black);font-size:.57rem;letter-spacing:.14em;padding:4px 10px;text-transform:uppercase;z-index:2;}
+  .pc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.93) 0%,transparent 55%);opacity:0;transition:opacity .5s;display:flex;flex-direction:column;justify-content:flex-end;padding:22px;}
+  .pc:hover .pc-ov{opacity:1;}
+  .pc-name{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;margin-bottom:4px;}
+  .pc-price{font-size:.7rem;letter-spacing:.14em;color:var(--g4);margin-bottom:13px;}
+  .pc-btn{width:100%;padding:10px;background:var(--white);color:var(--black);border:none;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;transition:background .3s;}
+  .pc-btn:hover{background:var(--g5);}
+  .pc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--white);transform:scaleX(0);transition:transform .5s ease;z-index:2;}
+  .pc:hover::before{transform:scaleX(1);}
+
+  /* BANNER */
+  .banner{background:var(--white);color:var(--black);padding:96px 60px;text-align:center;}
+  .bn-sub{font-size:.63rem;letter-spacing:.4em;text-transform:uppercase;color:var(--g3);margin-bottom:22px;}
+  .bn-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,4.4rem);font-weight:300;line-height:1.2;margin-bottom:38px;}
+  .bn-title em{font-style:italic;color:var(--g3);}
+  .bn-btn{padding:13px 42px;border:1px solid var(--black);background:none;font-size:.67rem;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .4s;}
+  .bn-btn:hover{background:var(--black);color:var(--white);}
+
+  /* STRIP */
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--g2);border-bottom:1px solid var(--g2);}
+  .strip-i{padding:54px 46px;text-align:center;border-right:1px solid var(--g2);}
+  .strip-i:last-child{border-right:none;}
+  .strip-i h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;margin-bottom:10px;}
+  .strip-i p{font-size:.73rem;color:var(--g4);line-height:1.8;}
+
+  /* CATEGORY PAGE */
+  .ch{height:58vh;display:flex;align-items:flex-end;padding:54px 60px;position:relative;overflow:hidden;}
+  .ch-bg{position:absolute;inset:0;background:radial-gradient(ellipse 130% 110% at 50% -10%,var(--g2) 0%,var(--black) 100%);}
+  .ch-txt{position:relative;z-index:2;}
+  .ch-eye{font-size:.59rem;letter-spacing:.5em;text-transform:uppercase;color:var(--g4);margin-bottom:13px;}
+  .ch-title{font-family:'Cormorant Garamond',serif;font-size:clamp(4rem,9vw,7.5rem);font-weight:300;line-height:.92;}
+  .ch-title em{font-style:italic;color:var(--g4);}
+  .ch-desc{margin-top:16px;font-size:.77rem;color:var(--g4);max-width:470px;line-height:1.9;letter-spacing:.04em;}
+  .cat-prods{padding:70px 60px;background:var(--black);}
+  .fbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:46px;border-bottom:1px solid var(--g2);padding-bottom:20px;}
+  .fb{font-size:.61rem;letter-spacing:.14em;text-transform:uppercase;padding:8px 17px;border:1px solid var(--g2);background:none;color:var(--g4);cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .3s;}
+  .fb:hover{border-color:var(--g5);color:var(--white);}
+  .fb.on{background:var(--white);color:var(--black);border-color:var(--white);}
+
+  /* FOOTER */
+  footer{padding:76px 60px 38px;background:var(--g1);border-top:1px solid var(--g2);}
+  .fg{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:54px;margin-bottom:54px;}
+  .fl{font-family:'Cormorant Garamond',serif;font-size:1.65rem;font-weight:300;letter-spacing:.3em;text-transform:uppercase;display:block;margin-bottom:16px;}
+  .fa{font-size:.74rem;color:var(--g4);line-height:1.9;max-width:265px;}
+  .fc h4{font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;margin-bottom:20px;color:var(--g5);}
+  .fc a{display:block;font-size:.73rem;color:var(--g4);text-decoration:none;margin-bottom:11px;cursor:pointer;transition:color .3s;}
+  .fc a:hover{color:var(--white);}
+  .fb2{display:flex;justify-content:space-between;padding-top:26px;border-top:1px solid var(--g2);font-size:.61rem;color:var(--g4);letter-spacing:.1em;}
+  .fmini{padding:28px 60px;background:var(--g1);border-top:1px solid var(--g2);display:flex;justify-content:space-between;font-size:.6rem;color:var(--g4);letter-spacing:.1em;}
+
+  /* MODALS */
+  .ov{position:fixed;inset:0;background:rgba(10,10,10,.96);z-index:3000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .4s;}
+  .ov.open{opacity:1;pointer-events:all;}
+  .modal{background:var(--g1);border:1px solid var(--g2);padding:54px;max-width:490px;width:92%;max-height:92vh;overflow-y:auto;position:relative;transform:translateY(26px);transition:transform .4s ease;}
+  .ov.open .modal{transform:translateY(0);}
+  .mx{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--g4);font-size:1.1rem;cursor:pointer;transition:color .3s;}
+  .mx:hover{color:var(--white);}
+  .mt{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:6px;}
+  .ms{font-size:.64rem;letter-spacing:.14em;color:var(--g4);text-transform:uppercase;margin-bottom:32px;}
+  .fg2{margin-bottom:20px;}
+  .fg2 label{display:block;font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--g4);margin-bottom:8px;}
+  .fg2 input,.fg2 select,.fg2 textarea{width:100%;background:var(--g2);border:1px solid var(--g2);color:var(--white);padding:12px 15px;font-family:'Montserrat',sans-serif;font-size:.83rem;outline:none;transition:border-color .3s;}
+  .fg2 input:focus,.fg2 select:focus,.fg2 textarea:focus{border-color:var(--white);}
+  .fg2 select option{background:var(--g2);}
+  .fg2 textarea{height:78px;resize:none;}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+  .sbtn{width:100%;padding:14px;background:var(--white);color:var(--black);border:none;font-size:.66rem;letter-spacing:.28em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;font-weight:500;transition:all .3s;margin-top:7px;}
+  .sbtn:hover{background:var(--g5);}
+  .sbtn:disabled{opacity:.5;cursor:not-allowed;}
+  .ok{text-align:center;padding:28px 0;display:none;}
+  .ok.show{display:block;animation:fi .5s ease;}
+  .ok .ico{font-size:2.7rem;margin-bottom:16px;}
+  .ok h3{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:300;margin-bottom:9px;}
+  .ok p{font-size:.75rem;color:var(--g4);line-height:1.8;}
+
+  /* NOTIF */
+  .notif{position:fixed;bottom:26px;right:26px;background:var(--white);color:var(--black);padding:13px 24px;font-size:.7rem;letter-spacing:.1em;z-index:9000;transform:translateY(80px);opacity:0;transition:all .4s ease;}
+  .notif.show{transform:translateY(0);opacity:1;}
+
+  @media(max-width:900px){
+    nav{padding:16px 22px;}
+    .nav-links{gap:16px;}
+    .cat-grid{grid-template-columns:1fr 1fr;}
+    .cats-sec,.feat-sec,.banner,footer{padding:56px 22px;}
+    .ch,.cat-prods{padding:38px 22px;}
+    .fg{grid-template-columns:1fr 1fr;gap:32px;}
+    .strip{grid-template-columns:1fr;}
+    .strip-i{border-right:none;border-bottom:1px solid var(--g2);}
+    .fmini{padding:22px;}
+  }
+  @media(max-width:560px){
+    .cat-grid{grid-template-columns:1fr;}
+    .frow{grid-template-columns:1fr;}
+    .fg{grid-template-columns:1fr;}
+    .h-btns{flex-direction:column;align-items:center;}
+  }
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div class="notif" id="notif"></div>
+
+<!-- ══════════ NAV ══════════ -->
+<nav>
+  <button class="logo" onclick="go('home')">JET ONE</button>
+  <div class="nav-links">
+    <button class="nb on" id="n-home"        onclick="go('home')">Accueil</button>
+    <button class="nb"    id="n-pantalons"  onclick="go('pantalons')">Pantalons</button>
+    <button class="nb"    id="n-chemises"   onclick="go('chemises')">Pulls & Shirts</button>
+    <button class="nb"    id="n-chaussures" onclick="go('chaussures')">Chaussures</button>
+    <button class="nav-cart" onclick="openCart()">
+      Panier <span class="badge" id="cart-n">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     PAGE ACCUEIL
+══════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-c">
+      <p class="h-eye">Alger · Nouvelle Collection 2025</p>
+      <h1 class="h-title">JET<br><em>ONE</em></h1>
+      <p class="h-tag">Féminine · Élégante · Intemporelle</p>
+      <div class="h-div"></div>
+      <div class="h-btns">
+        <button class="h-btn fill" onclick="go('pantalons')">Découvrir</button>
+        <button class="h-btn" onclick="scrollCats()">Nos catégories</button>
+      </div>
+    </div>
+    <div class="h-scroll"><span>Défiler</span><div class="h-line"></div></div>
+  </section>
+
+  <div class="mq-wrap"><div class="mq-track" id="mq"></div></div>
+
+  <!-- CATÉGORIES -->
+  <section class="cats-sec" id="cats-anchor">
+    <p class="s-label">Collections</p>
+    <h2 class="s-title">Explorez nos<br><em>Catégories</em></h2>
+    <div class="cat-grid">
+
+      <div class="cat-card" onclick="go('pantalons')">
+        <div class="cat-emo">👖</div>
+        <div class="cat-grad"></div>
+        <div class="cat-line"></div>
+        <div class="cat-body">
+          <span class="cat-sub">Collection</span>
+          <span class="cat-name">Pantalons</span>
+          <button class="cat-go">Voir la collection →</button>
+        </div>
+      </div>
+
+      <div class="cat-card" onclick="go('chemises')">
+        <div class="cat-emo">👕</div>
+        <div class="cat-grad"></div>
+        <div class="cat-line"></div>
+        <div class="cat-body">
+          <span class="cat-sub">Collection</span>
+          <span class="cat-name">Pulls & Shirts</span>
+          <button class="cat-go">Voir la collection →</button>
+        </div>
+      </div>
+
+      <div class="cat-card" onclick="go('chaussures')">
+        <div class="cat-emo">👟</div>
+        <div class="cat-grad"></div>
+        <div class="cat-line"></div>
+        <div class="cat-body">
+          <span class="cat-sub">Collection</span>
+          <span class="cat-name">Chaussures</span>
+          <button class="cat-go">Voir la collection →</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FEATURED -->
+  <section class="feat-sec">
+    <div class="sec-hd">
+      <div>
+        <p class="s-label">Sélection</p>
+        <h2 class="s-title" style="margin-bottom:0;">Nouveautés<br><em>de la semaine</em></h2>
+      </div>
+      <button class="see-all" onclick="go('pantalons')">Tout voir →</button>
+    </div>
+    <div class="p-grid" id="feat-grid"></div>
+  </section>
+
+  <!-- STRIP -->
+  <div class="strip">
+    <div class="strip-i">
+      <h3>Qualité Premium</h3>
+      <p>Chaque pièce est sélectionnée avec soin pour sa qualité de tissu et sa finition irréprochable.</p>
+    </div>
+    <div class="strip-i">
+      <h3>Style Algérien</h3>
+      <p>Une mode enracinée dans la sensibilité locale, à la rencontre des tendances internationales.</p>
+    </div>
+    <div class="strip-i">
+      <h3>Livraison Rapide</h3>
+      <p>Commandez aujourd'hui, livré à votre porte dans toutes les wilayas.</p>
+    </div>
+  </div>
+
+  <!-- BANNER -->
+  <section class="banner">
+    <p class="bn-sub">Jet One — Saison 2025</p>
+    <h2 class="bn-title">S'habiller avec intention.<br><em>Bouger avec confiance.</em></h2>
+    <button class="bn-btn" onclick="go('chaussures')">Voir les chaussures</button>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="fg">
+      <div>
+        <span class="fl">JET ONE</span>
+        <p class="fa">La référence mode féminine à Alger. Des pièces soigneusement sélectionnées pour la femme algérienne moderne.</p>
+      </div>
+      <div class="fc">
+        <h4>Collections</h4>
+        <a onclick="go('pantalons')">Pantalons</a>
+        <a onclick="go('chemises')">Pulls & Shirts</a>
+        <a onclick="go('chaussures')">Chaussures</a>
+      </div>
+      <div class="fc">
+        <h4>Informations</h4>
+        <a href="#">Guide des tailles</a>
+        <a href="#">Livraison</a>
+        <a href="#">Retours</a>
+      </div>
+      <div class="fc">
+        <h4>Contact</h4>
+        <a href="#">Instagram</a>
+        <a href="#">WhatsApp</a>
+        <a href="#">Facebook</a>
+      </div>
+    </div>
+    <div class="fb2">
+      <span>© 2025 Jet One. Tous droits réservés.</span>
+      <span><a href="admin.html" style="color:var(--g3);text-decoration:none;font-size:.58rem;letter-spacing:.15em;transition:color .3s;" onmouseover="this.style.color='var(--g5)'" onmouseout="this.style.color='var(--g3)'">Admin</a> · Alger, Algérie</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGES CATÉGORIES
+══════════════════════════════════════════ -->
+<!-- PANTALONS -->
+<div class="page" id="page-pantalons">
+  <section class="ch">
+    <div class="ch-bg"></div>
+    <div class="ch-txt">
+      <p class="ch-eye">Collection 2025</p>
+      <h2 class="ch-title">Pantalons<br><em>&amp; Bas</em></h2>
+      <p class="ch-desc">Des coupes impeccables pour chaque morphologie. Du tailleur élégant au pantalon décontracté, trouvez votre style.</p>
+    </div>
+  </section>
+  <section class="cat-prods">
+    <div class="fbar">
+      <button class="fb on" onclick="filt('pantalons','all',this)">Tout</button>
+      <button class="fb" onclick="filt('pantalons','new',this)">Nouveautés</button>
+      <button class="fb" onclick="filt('pantalons','best',this)">Meilleures ventes</button>
+      <button class="fb" onclick="filt('pantalons','sale',this)">Soldes</button>
+    </div>
+    <div class="p-grid" id="g-pantalons"></div>
+  </section>
+  <div class="fmini"><span>© 2025 Jet One</span><span>Alger, Algérie</span></div>
+</div>
+
+<!-- CHEMISES -->
+<div class="page" id="page-chemises">
+  <section class="ch">
+    <div class="ch-bg"></div>
+    <div class="ch-txt">
+      <p class="ch-eye">Collection 2025</p>
+      <h2 class="ch-title">Pulls<br><em>&amp; Shirts</em></h2>
+      <p class="ch-desc">Des pièces confortables et stylées pour toutes les occasions. Du pull oversize au shirt élégant.</p>
+    </div>
+  </section>
+  <section class="cat-prods">
+    <div class="fbar">
+      <button class="fb on" onclick="filt('chemises','all',this)">Tout</button>
+      <button class="fb" onclick="filt('chemises','new',this)">Nouveautés</button>
+      <button class="fb" onclick="filt('chemises','best',this)">Meilleures ventes</button>
+      <button class="fb" onclick="filt('chemises','sale',this)">Soldes</button>
+    </div>
+    <div class="p-grid" id="g-chemises"></div>
+  </section>
+  <div class="fmini"><span>© 2025 Jet One</span><span>Alger, Algérie</span></div>
+</div>
+
+<!-- CHAUSSURES -->
+<div class="page" id="page-chaussures">
+  <section class="ch">
+    <div class="ch-bg"></div>
+    <div class="ch-txt">
+      <p class="ch-eye">Collection 2025</p>
+      <h2 class="ch-title">Chaussures<br><em>&amp; Sneakers</em></h2>
+      <p class="ch-desc">Des paires soigneusement sélectionnées pour allier style et confort au quotidien.</p>
+    </div>
+  </section>
+  <section class="cat-prods">
+    <div class="fbar">
+      <button class="fb on" onclick="filt('chaussures','all',this)">Tout</button>
+      <button class="fb" onclick="filt('chaussures','new',this)">Nouveautés</button>
+      <button class="fb" onclick="filt('chaussures','best',this)">Meilleures ventes</button>
+      <button class="fb" onclick="filt('chaussures','sale',this)">Soldes</button>
+    </div>
+    <div class="p-grid" id="g-chaussures"></div>
+  </section>
+  <div class="fmini"><span>© 2025 Jet One</span><span>Alger, Algérie</span></div>
+</div>
+
+<!-- ══════════ MODAL COMMANDE ══════════ -->
+<div class="ov" id="ov-order">
+  <div class="modal">
+    <button class="mx" onclick="closeOv('ov-order')">✕</button>
+    <p class="mt">Commander</p>
+    <p class="ms" id="order-lbl">—</p>
+    <div id="order-form">
+      <div class="frow">
+        <div class="fg2"><label>Prénom</label><input id="o-prenom" placeholder="Yasmine"></div>
+        <div class="fg2"><label>Nom</label><input id="o-nom" placeholder="Benali"></div>
+      </div>
+      <div class="fg2"><label>Téléphone</label><input type="tel" id="o-tel" placeholder="+213 5XX XXX XXX"></div>
+      <div class="fg2">
+        <label>Wilaya</label>
+        <select id="o-wilaya">
+          <option value="">Choisir une wilaya</option>
+          <option>Alger</option><option>Oran</option><option>Constantine</option>
+          <option>Annaba</option><option>Blida</option><option>Batna</option>
+          <option>Sétif</option><option>Sidi Bel Abbès</option><option>Tlemcen</option>
+          <option>Béjaïa</option><option>Tizi Ouzou</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="fg2"><label>Adresse complète</label><input id="o-adr" placeholder="Rue, Quartier, Commune"></div>
+      <div class="frow">
+        <div class="fg2">
+          <label>Taille</label>
+          <select id="o-size"><option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>XXL</option></select>
+        </div>
+        <div class="fg2"><label>Quantité</label><input type="number" id="o-qty" value="1" min="1" max="10"></div>
+      </div>
+      <div class="fg2"><label>Notes (optionnel)</label><textarea id="o-notes" placeholder="Couleur souhaitée, demandes spéciales..."></textarea></div>
+      <button class="sbtn" id="sbtn" onclick="submitOrder()">Passer la commande</button>
+    </div>
+    <div class="ok" id="order-ok">
+      <div class="ico">✓</div>
+      <h3>Commande reçue !</h3>
+      <p>Merci ! Nous vous contacterons au numéro fourni pour confirmer votre commande.<br>Livraison estimée : 2 à 5 jours.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL PANIER ══════════ -->
+<div class="ov" id="ov-cart">
+  <div class="modal">
+    <button class="mx" onclick="closeOv('ov-cart')">✕</button>
+    <p class="mt">Votre Panier</p>
+    <div id="cart-body" style="margin:22px 0;"></div>
+    <div id="cart-foot" style="display:none;">
+      <div style="border-top:1px solid var(--g2);padding-top:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--g4);">Total</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:1.75rem;" id="cart-total">0 DZD</span>
+      </div>
+      <button class="sbtn" onclick="cartCheckout()">Commander tout le panier</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════ CONFIG ════════════
+// 🔴 Après déploiement Google Apps Script, colle l'URL ici :
+const GAS_URL = 'COLLE_TON_URL_ICI';
+
+// ════════════ PRODUITS ════════════
+const PRODS = {
+  pantalons:[
+    {id:'p1',name:'Pantalon Tailleur Noir',   price:3800,tag:'Nouveau',  cat:'new',  ico:'👖'},
+    {id:'p2',name:'Jean Slim Blanc Cassé',    price:2900,tag:'Best',     cat:'best', ico:'👖'},
+    {id:'p3',name:'Pantalon Large Gris Perle',price:3400,tag:null,       cat:'all',  ico:'👖'},
+    {id:'p4',name:'Palazzo Fluide',           price:3100,tag:'Solde',    cat:'sale', ico:'👖'},
+    {id:'p5',name:'Pantalon Cargo Chic',      price:4200,tag:'Nouveau',  cat:'new',  ico:'👖'},
+    {id:'p6',name:'Legging Classique',        price:1800,tag:'Best',     cat:'best', ico:'👖'},
+  ],
+  chemises:[
+    {id:'c1',name:'Chemise Oxford Oversize',  price:2400,tag:'Nouveau',  cat:'new',  ico:'👔'},
+    {id:'c2',name:'Top Crop Blanc',           price:1800,tag:'Best',     cat:'best', ico:'👕'},
+    {id:'c3',name:'Blouse Satin Ivoire',      price:2900,tag:null,       cat:'all',  ico:'✨'},
+    {id:'c4',name:'Chemise Rayée Fine',       price:2600,tag:'Nouveau',  cat:'new',  ico:'👔'},
+    {id:'c5',name:'T-shirt Oversize Noir',    price:1400,tag:'Solde',    cat:'sale', ico:'👕'},
+    {id:'c6',name:'Blouse Brodée',            price:3200,tag:'Best',     cat:'best', ico:'🌸'},
+  ],
+  chaussures:[
+    {id:'ch1',name:'Sneaker Blanc Classic',    price:4200,tag:'Nouveau',  cat:'new',  ico:'👟'},
+    {id:'ch2',name:'Runner Noir Mat',          price:3800,tag:'Best',     cat:'best', ico:'👟'},
+    {id:'ch3',name:'Basket Caramel',           price:4500,tag:null,       cat:'all',  ico:'👟'},
+    {id:'ch4',name:'Sneaker Low Beige',        price:3600,tag:'Solde',    cat:'sale', ico:'👟'},
+    {id:'ch5',name:'Chunky Blanc/Gris',        price:5100,tag:'Nouveau',  cat:'new',  ico:'👟'},
+    {id:'ch6',name:'Slip-On Noir',             price:2900,tag:'Best',     cat:'best', ico:'👟'},
+  ]
+};
+
+// ════════════ ÉTAT ════════════
+let cart = JSON.parse(localStorage.getItem('jt-cart')||'[]');
+let curProd = null;
+
+// ════════════ CURSEUR ════════════
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function anim(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(anim);})();
+
+// ════════════ MARQUEE ════════════
+const mqItems=['Livraison gratuite à Alger','Nouvelles arrivées chaque semaine','Mode exclusivement féminine','Tissus de qualité premium','Paiement à la livraison'];
+document.getElementById('mq').innerHTML=[...mqItems,...mqItems].map(t=>`<span class="mq-item">${t}<span class="dot">✦</span></span>`).join('');
+
+// ════════════ NAVIGATION ════════════
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  const nb=document.getElementById('n-'+page);
+  if(nb)nb.classList.add('on');
+  window.scrollTo(0,0);
+}
+function scrollCats(){ document.getElementById('cats-anchor').scrollIntoView({behavior:'smooth'}); }
+
+// ════════════ RENDU PRODUITS ════════════
+function renderGrid(id,items){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=items.map(p=>`
+    <div class="pc" onclick="openOrder('${p.id}','${p.name}',${p.price})">
+      ${p.tag?`<span class="pc-tag">${p.tag}</span>`:''}
+      <div class="pc-in"><span class="pc-ico">${p.ico}</span></div>
+      <div class="pc-ov">
+        <p class="pc-name">${p.name}</p>
+        <p class="pc-price">${p.price.toLocaleString('fr-DZ')} DZD</p>
+        <button class="pc-btn" onclick="event.stopPropagation();addCart('${p.id}','${p.name}',${p.price})">Ajouter au panier</button>
+      </div>
+    </div>`).join('');
+}
+
+function filt(cat,f,btn){
+  btn.closest('.fbar').querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const all=PRODS[cat];
+  const res=f==='all'?all:all.filter(p=>p.cat===f);
+  renderGrid('g-'+cat, res.length?res:all);
+}
+
+// Init
+const feat=[...PRODS.pantalons.slice(0,2),...PRODS.chemises.slice(0,2),...PRODS.chaussures.slice(0,2)];
+renderGrid('feat-grid',feat);
+Object.keys(PRODS).forEach(c=>renderGrid('g-'+c,PRODS[c]));
+
+// ════════════ PANIER ════════════
+function addCart(id,name,price){
+  const ex=cart.find(i=>i.id===id);
+  ex?ex.qty++:cart.push({id,name,price,qty:1});
+  localStorage.setItem('jt-cart',JSON.stringify(cart));
+  updateBadge();
+  notify('Ajouté : '+name);
+}
+function updateBadge(){ document.getElementById('cart-n').textContent=cart.reduce((s,i)=>s+i.qty,0); }
+function openCart(){
+  const body=document.getElementById('cart-body'),foot=document.getElementById('cart-foot');
+  if(!cart.length){
+    body.innerHTML='<p style="font-size:.8rem;color:var(--g4);text-align:center;padding:36px 0;">Votre panier est vide.</p>';
+    foot.style.display='none';
+  } else {
+    body.innerHTML=cart.map(i=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--g2);">
+        <div>
+          <p style="font-size:.83rem;margin-bottom:3px;">${i.name}</p>
+          <p style="font-size:.68rem;color:var(--g4);">Qté : ${i.qty} · ${(i.price*i.qty).toLocaleString('fr-DZ')} DZD</p>
+        </div>
+        <button onclick="rmCart('${i.id}')" style="background:none;border:1px solid var(--g2);color:var(--g4);padding:5px 11px;font-size:.58rem;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .3s;" onmouseover="this.style.borderColor='#c44';this.style.color='#c44'" onmouseout="this.style.borderColor='var(--g2)';this.style.color='var(--g4)'">Retirer</button>
+      </div>`).join('');
+    document.getElementById('cart-total').textContent=cart.reduce((s,i)=>s+i.price*i.qty,0).toLocaleString('fr-DZ')+' DZD';
+    foot.style.display='block';
+  }
+  document.getElementById('ov-cart').classList.add('open');
+}
+function rmCart(id){
+  cart=cart.filter(i=>i.id!==id);
+  localStorage.setItem('jt-cart',JSON.stringify(cart));
+  updateBadge(); openCart();
+}
+function cartCheckout(){
+  closeOv('ov-cart');
+  if(!cart.length)return;
+  curProd={id:'CART',name:cart.map(i=>i.name).join(', '),price:cart.reduce((s,i)=>s+i.price*i.qty,0)};
+  document.getElementById('order-lbl').textContent=curProd.name;
+  showOrderForm();
+  document.getElementById('ov-order').classList.add('open');
+}
+
+// ════════════ COMMANDE ════════════
+function openOrder(id,name,price){
+  curProd={id,name,price};
+  document.getElementById('order-lbl').textContent=name+' — '+price.toLocaleString('fr-DZ')+' DZD';
+  showOrderForm();
+  document.getElementById('ov-order').classList.add('open');
+}
+function showOrderForm(){
+  document.getElementById('order-form').style.display='block';
+  document.getElementById('order-ok').classList.remove('show');
+  const btn=document.getElementById('sbtn');
+  btn.disabled=false; btn.textContent='Passer la commande';
+}
+async function submitOrder(){
+  const prenom=document.getElementById('o-prenom').value.trim();
+  const nom=document.getElementById('o-nom').value.trim();
+  const tel=document.getElementById('o-tel').value.trim();
+  const wilaya=document.getElementById('o-wilaya').value;
+  const adr=document.getElementById('o-adr').value.trim();
+  if(!prenom||!nom||!tel||!wilaya||!adr){notify('Veuillez remplir tous les champs.');return;}
+  const qty=parseInt(document.getElementById('o-qty').value)||1;
+  const now=new Date();
+  const order={
+    id:'CMD-'+Date.now(),
+    date:now.toLocaleDateString('fr-DZ'),
+    time:now.toLocaleTimeString('fr-DZ',{hour:'2-digit',minute:'2-digit'}),
+    customer:prenom+' '+nom,
+    phone:tel, wilaya, address:adr,
+    product:curProd.name,
+    size:document.getElementById('o-size').value,
+    qty,
+    price:curProd.price,
+    total:curProd.price*qty,
+    notes:document.getElementById('o-notes').value
+  };
+  const btn=document.getElementById('sbtn');
+  btn.disabled=true; btn.textContent='Envoi en cours...';
+  // Send to Google Sheets
+  if(GAS_URL!=='COLLE_TON_URL_ICI'){
+    try{
+      await fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'submit_order',order})});
+    }catch(e){}
+  }
+  // Backup local
+  const local=JSON.parse(localStorage.getItem('jt-orders')||'[]');
+  local.unshift(order);
+  localStorage.setItem('jt-orders',JSON.stringify(local));
+  // Clear
+  ['o-prenom','o-nom','o-tel','o-adr','o-notes'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('o-qty').value=1;
+  document.getElementById('order-form').style.display='none';
+  document.getElementById('order-ok').classList.add('show');
+}
+
+// ════════════ OVERLAYS ════════════
+function closeOv(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ════════════ NOTIF ════════════
+function notify(m){const n=document.getElementById('notif');n.textContent=m;n.classList.add('show');setTimeout(()=>n.classList.remove('show'),3000);}
+
+updateBadge();
+</script>
+</body>
+</html>
